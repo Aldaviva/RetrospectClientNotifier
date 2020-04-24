@@ -33,6 +33,8 @@ SetupIconFile=..\RetrospectClientNotificationReceiver\retroico.ico
 Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=admin
+CloseApplications=no
+RestartApplications=no
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -50,6 +52,9 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 Type: files; Name: "{app}\RetrospectClientNotificationReceiver.exe"; BeforeInstall: TaskKill('RetrospectClientNotificationReceiver.exe')
 Type: files; Name: "{app}\DataSizeUnits.dll"
 Type: files; Name: "{app}\retroeventhandler.exe"
+
+[Registry]
+Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "Retrospect Client Notifier"; ValueData: "{app}\RetrospectClientNotificationReceiver.exe"
 
 [Code]
 procedure TaskKill(ProcessName: String);

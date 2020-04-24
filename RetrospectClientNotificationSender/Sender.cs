@@ -12,7 +12,7 @@ namespace RetrospectClientNotificationSender {
             using var pipeClient = new NamedPipeClientStream(".", "RetrospectClientNotifier", PipeDirection.Out);
 
             try {
-                pipeClient.Connect(500);
+                pipeClient.Connect(2000);
                 using var pipeWriter = new StreamWriter(pipeClient);
                 pipeWriter.WriteLine(string.Join("\t", args));
 

@@ -1,32 +1,34 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using DataSizeUnits;
 
-namespace RetrospectClientNotificationReceiver {
+namespace RetrospectClientNotificationReceiver.Events {
 
-    public struct EndSourceEvent {
+    public struct EndSourceEvent: RetrospectEvent {
 
         public const string EVENT_NAME = "EndSource";
         private const string DATE_FORMAT = "M/d/yyyy H:mm";
 
-        public readonly string scriptName;
-        public readonly string sourceName;
-        public readonly string sourcePath;
-        public readonly string clientName;
-        public readonly DataSize sizeBackedUp;
-        public readonly long filesBackedUp;
-        public readonly TimeSpan duration;
-        public readonly DateTime sourceStart;
-        public readonly DateTime sourceEnd;
-        public readonly DateTime scriptStart;
-        public readonly string backupSet;
-        public readonly string backupAction;
-        public readonly string parentVolume;
-        public readonly int errorCount;
-        public readonly int fatalErrorCode;
-        public readonly string fatalErrorMessage;
-        public readonly bool unused;
+        public string scriptName { get; }
+        public string sourceName { get; }
+        public string sourcePath { get; }
+        public string clientName { get; }
+        public DataSize sizeBackedUp { get; }
+        public long filesBackedUp { get; }
+        public TimeSpan duration { get; }
+        public DateTime sourceStart { get; }
+        public DateTime sourceEnd { get; }
+        public DateTime scriptStart { get; }
+        public string backupSet { get; }
+        public string backupAction { get; }
+        public string parentVolume { get; }
+        public int errorCount { get; }
+        public int fatalErrorCode { get; }
+        public string fatalErrorMessage { get; }
+        public bool unused { get; }
 
         public EndSourceEvent(IReadOnlyList<string> args) {
             scriptName = args[0];
@@ -48,7 +50,8 @@ namespace RetrospectClientNotificationReceiver {
             unused = bool.Parse(args[16]);
         }
 
-        public EndSourceEvent(string scriptName, DataSize sizeBackedUp, long filesBackedUp, TimeSpan duration, DateTime sourceEnd, string fatalErrorMessage): this() {
+        public EndSourceEvent(string scriptName, DataSize sizeBackedUp, long filesBackedUp, TimeSpan duration, DateTime sourceEnd,
+            string fatalErrorMessage): this() {
             this.scriptName = scriptName;
             this.sizeBackedUp = sizeBackedUp;
             this.filesBackedUp = filesBackedUp;
