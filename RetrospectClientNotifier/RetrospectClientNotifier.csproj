@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0EB41B22-4A82-48F6-976A-3CD93F580AB8}</ProjectGuid>
+    <ProjectGuid>{700AA003-BAA6-4A5F-85FE-E56B38C0271A}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>RetrospectClientNotificationReceiver</RootNamespace>
-    <AssemblyName>RetrospectClientNotificationReceiver</AssemblyName>
+    <RootNamespace>RetrospectClientNotifier</RootNamespace>
+    <AssemblyName>retroeventhandler</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -35,7 +35,7 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>retroico.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\retroico.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DataSizeUnits, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -44,44 +44,69 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="WindowsBase" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandLine.cs" />
     <Compile Include="Events\EndSourceEvent.cs" />
     <Compile Include="Events\RetrospectEvent.cs" />
+    <Compile Include="Events\RetrospectEventParser.cs" />
+    <Compile Include="Events\StartSourceEvent.cs" />
     <Compile Include="NotificationDialogBox.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="NotificationDialogBox.Designer.cs">
       <DependentUpon>NotificationDialogBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Receiver.cs" />
+    <Compile Include="NotificationToast.cs" />
+    <Compile Include="Notifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Events\StartSourceEvent.cs" />
-    <Compile Include="Events\RetrospectEventParser.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\retroico.ico" />
-    <Content Include="retroico.ico" />
-  </ItemGroup>
-  <ItemGroup>
+    <Compile Include="RetrospectNotification.cs" />
+    <Compile Include="TrayIcon.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TrayIcon.Designer.cs">
+      <DependentUpon>TrayIcon.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="NotificationDialogBox.resx">
       <DependentUpon>NotificationDialogBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="TrayIcon.resx">
+      <DependentUpon>TrayIcon.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\retroico.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CreateProcessAsUser">
+      <Version>1.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task">
+      <Version>2.0.18.2</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications">
+      <Version>7.0.2</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\retrospect48.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 
-namespace RetrospectClientNotificationReceiver.Events {
+namespace RetrospectClientNotifier.Events {
 
     public readonly struct StartSourceEvent: RetrospectEvent {
 

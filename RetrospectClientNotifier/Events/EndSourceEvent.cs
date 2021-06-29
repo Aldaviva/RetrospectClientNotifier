@@ -5,30 +5,39 @@ using System.Collections.Generic;
 using System.Globalization;
 using DataSizeUnits;
 
-namespace RetrospectClientNotificationReceiver.Events {
+namespace RetrospectClientNotifier.Events {
 
     public readonly struct EndSourceEvent: RetrospectEvent {
 
         public const  string EVENT_NAME  = "EndSource";
         private const string DATE_FORMAT = "M/d/yyyy H:mm";
 
-        public string scriptName { get; }
-        public string sourceName { get; }
-        public string sourcePath { get; }
-        public string clientName { get; }
+        public string scriptName { get; } // "My Backup Script"
+        public string sourceName { get; } // "Backup Clients/Aegir/Games (G:)"
+        public string sourcePath { get; } // "G:\"
+        public string clientName { get; } // "Aegir"
         public DataSize sizeBackedUp { get; }
         public long filesBackedUp { get; }
         public TimeSpan duration { get; }
         public DateTime sourceStart { get; }
         public DateTime sourceEnd { get; }
         public DateTime scriptStart { get; }
-        public string backupSet { get; }
-        public string backupAction { get; }
-        public string parentVolume { get; }
-        public int errorCount { get; }
+        public string backupSet { get; }    // "My Backup Set"
+        public string backupAction { get; } // "Normal"
+        public string parentVolume { get; } // "Aegir"
+        public int errorCount { get; }      //0
+
+        /// <summary>
+        /// Negative number for the error code, or <c>0</c> if there were no fatal errors
+        /// </summary>
         public int fatalErrorCode { get; }
+
+        /// <summary>
+        /// The error message, or <c>successful</c> if there were no fatal errors
+        /// </summary>
         public string fatalErrorMessage { get; }
-        public bool unused { get; }
+
+        public bool unused { get; } //"true"
 
         public EndSourceEvent(IReadOnlyList<string> args) {
             scriptName        = args[0];
