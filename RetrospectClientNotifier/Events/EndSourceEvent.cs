@@ -18,8 +18,8 @@ namespace RetrospectClientNotifier.Events {
         public string clientName { get; } // "Aegir"
         public DataSize sizeBackedUp { get; }
         public long filesBackedUp { get; }
-        public TimeSpan duration { get; }
-        public DateTime sourceStart { get; }
+        public TimeSpan duration { get; }    // "0"
+        public DateTime sourceStart { get; } // "6/29/2021 1:34"
         public DateTime sourceEnd { get; }
         public DateTime scriptStart { get; }
         public string backupSet { get; }    // "My Backup Set"
@@ -57,16 +57,6 @@ namespace RetrospectClientNotifier.Events {
             fatalErrorCode    = int.Parse(args[14]);
             fatalErrorMessage = args[15];
             unused            = bool.Parse(args[16]);
-        }
-
-        public EndSourceEvent(string scriptName, DataSize sizeBackedUp, long filesBackedUp, TimeSpan duration, DateTime sourceEnd,
-                              string fatalErrorMessage): this() {
-            this.scriptName        = scriptName;
-            this.sizeBackedUp      = sizeBackedUp;
-            this.filesBackedUp     = filesBackedUp;
-            this.duration          = duration;
-            this.sourceEnd         = sourceEnd;
-            this.fatalErrorMessage = fatalErrorMessage;
         }
 
         private static DateTime parseDateTime(string dateTimeString) {

@@ -12,9 +12,13 @@ namespace RetrospectClientNotifier {
             notifyIcon.Text = tooltip;
         }
 
-        private void onClickClose(object sender, EventArgs e) {
+        private void onClickHideIcon(object? sender = null, EventArgs? e = null) {
             Close();
-            Application.Exit();
+        }
+
+        private void onClickAlwaysHideIcon(object sender, EventArgs e) {
+            Notifier.allowTrayIcon = false;
+            onClickHideIcon();
         }
 
     }

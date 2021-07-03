@@ -6,6 +6,7 @@ using System.Text;
 using System.Windows.Forms;
 using DataSizeUnits;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Microsoft.Win32;
 using murrayju.ProcessExtensions;
 using RetrospectClientNotifier.Events;
 
@@ -18,17 +19,27 @@ namespace RetrospectClientNotifier {
         private const string PIPE_NAME    = "RetrospectClientNotifier";
         private const string COMMAND_EXIT = "exit";
 
+        private static readonly (string key, string value) ALLOW_TRAY_ICON_REGISTRY = (Registry.CurrentUser.Name + @"\SOFTWARE\Ben Hutchison\RetrospectClientNotifier", "AllowTrayIcon");
+
+        public static bool allowTrayIcon {
+            get => Convert.ToBoolean(Registry.GetValue(ALLOW_TRAY_ICON_REGISTRY.key, ALLOW_TRAY_ICON_REGISTRY.value, null) ?? true);
+            set => Registry.SetValue(ALLOW_TRAY_ICON_REGISTRY.key, ALLOW_TRAY_ICON_REGISTRY.value, value, RegistryValueKind.DWord);
+        }
+
         [STAThread]
-        private static void Main(string[] malformedArgs) {
+        private static void Main() {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
             if (ToastNotificationManagerCompat.WasCurrentProcessToastActivated()) {
                 //user clicked a toast, do nothing and exit
             } else if (!Environment.UserInteractive) {
                 //if running as LocalSystem, we can't show UI, so relaunch in the console user's session
                 ProcessExtensions.StartProcessAsCurrentUser(Application.ExecutablePath, Environment.CommandLine);
+            } else if (Environment.GetCommandLineArgs().Length == 1) {
+                MessageBox.Show("Copy this executable into the Retrospect installation directory (C:\\Program Files (x86)\\Retrospect\\Retrospect Client by default) and rename it to " +
+                    "retroeventhandler.exe so that Retrospect can call it when a backup starts or finishes.", "Cannot be run manually", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             } else {
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-
                 closeOtherInstances();
 
                 //pcpds.exe doesn't properly escape paths ending with \ in argument string, so turn "G:\" into "G:\\" and then manually parse
@@ -39,29 +50,33 @@ namespace RetrospectClientNotifier {
 
                 RetrospectNotification notification = formatNotification(retrospectEvent);
                 TrayIcon?              trayIcon     = null;
+                bool                   keepRunning  = false;
 
                 if (retrospectEvent is StartSourceEvent) {
-                    trayIcon = new TrayIcon($"Retrospect backup started at {DateTime.Now:t}");
+                    keepRunning = true;
+                    if (allowTrayIcon) {
+                        trayIcon = new TrayIcon($"Retrospect backup started at {DateTime.Now:t}");
+                    }
                 }
 
                 NotificationToast.hideNotifications();
                 NotificationToast.showNotification(notification);
 
-                if (trayIcon is not null) {
+                if (keepRunning) {
                     listenForExitMessages(trayIcon);
                     Application.Run();
                 }
             }
         }
 
-        private static void listenForExitMessages(Form trayIcon) {
+        private static void listenForExitMessages(Form? trayIcon) {
             NamedPipeServerStream pipeServer = new(PIPE_NAME, PipeDirection.In, 1, PipeTransmissionMode.Message);
             pipeServer.WaitForConnectionAsync().ContinueWith(async _ => {
                 using StreamReader reader = new(pipeServer, Encoding.UTF8);
 
                 string message = await reader.ReadToEndAsync();
                 if (message == COMMAND_EXIT) {
-                    trayIcon.Close(); //needed to quickly hide the tray icon instead of waiting
+                    trayIcon?.Close(); //needed to quickly hide the tray icon instead of waiting
                     pipeServer.Close();
                     Application.Exit();
                 }
@@ -80,17 +95,25 @@ namespace RetrospectClientNotifier {
             }
         }
 
-        private static RetrospectNotification formatNotification(RetrospectEvent retrospectEvent) =>
-            retrospectEvent switch {
-                StartSourceEvent => new RetrospectNotification(null, "Starting backup", false),
+        private static RetrospectNotification formatNotification(RetrospectEvent retrospectEvent) {
+            switch (retrospectEvent) {
+                case StartSourceEvent:
+                    return new RetrospectNotification("Starting backup", "Always back up, never back down.", false);
 
-                EndSourceEvent { fatalErrorCode: 0 } notification => new RetrospectNotification("Backup complete", string.Format(new DataSizeFormatter(),
-                    "Copied {0:N0} files ({1:A1}) in {2:h\\ \\h\\ mm\\ \\m}.", notification.filesBackedUp, notification.sizeBackedUp, notification.duration), true),
+                case EndSourceEvent { fatalErrorCode: 0 } notification:
+                    //EndSourceEvent duration from Retrospect is way too short, it probably only covers copying files and not scanning, building snapshot, or verification
+                    TimeSpan duration = DateTime.Now - notification.scriptStart;
+                    return new RetrospectNotification("Backup complete", string.Format(new DataSizeFormatter(), "Copied {0:N0} {2} ({1:A1}) in {3}.",
+                        notification.filesBackedUp, notification.sizeBackedUp, notification.filesBackedUp != 1 ? "files" : "file",
+                        duration.ToString(duration >= TimeSpan.FromHours(1) ? @"h\h\ mm\m" : @"m\m")), true);
 
-                EndSourceEvent notification => new RetrospectNotification("Backup failed",
-                    $"{notification.fatalErrorMessage}\nCode {notification.fatalErrorCode:N0} ({notification.errorCount:N0} errors)", true),
-                _ => new RetrospectNotification("Unknown event", retrospectEvent.GetType().Name, true)
-            };
+                case EndSourceEvent notification:
+                    return new RetrospectNotification("Backup failed", $"{notification.fatalErrorMessage}\nCode {notification.fatalErrorCode:N0} ({notification.errorCount:N0} errors)", true);
+
+                default:
+                    return new RetrospectNotification("Unknown event", retrospectEvent.GetType().Name, true);
+            }
+        }
 
     }
 

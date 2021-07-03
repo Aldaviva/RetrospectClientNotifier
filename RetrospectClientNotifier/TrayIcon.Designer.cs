@@ -33,7 +33,8 @@ namespace RetrospectClientNotifier
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TrayIcon));
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.notifyIconMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.hideToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.hideIcon = new System.Windows.Forms.ToolStripMenuItem();
+            this.alwaysHideIcon = new System.Windows.Forms.ToolStripMenuItem();
             this.notifyIconMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -47,16 +48,24 @@ namespace RetrospectClientNotifier
             // notifyIconMenu
             // 
             this.notifyIconMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.hideToolStripMenuItem});
+            this.hideIcon,
+            this.alwaysHideIcon});
             this.notifyIconMenu.Name = "contextMenuStrip1";
-            this.notifyIconMenu.Size = new System.Drawing.Size(104, 26);
+            this.notifyIconMenu.Size = new System.Drawing.Size(208, 70);
             // 
-            // hideToolStripMenuItem
+            // hideIcon
             // 
-            this.hideToolStripMenuItem.Name = "hideToolStripMenuItem";
-            this.hideToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.hideToolStripMenuItem.Text = "Close";
-            this.hideToolStripMenuItem.Click += new System.EventHandler(this.onClickClose);
+            this.hideIcon.Name = "hideIcon";
+            this.hideIcon.Size = new System.Drawing.Size(207, 22);
+            this.hideIcon.Text = "Hide icon for this backup";
+            this.hideIcon.Click += new System.EventHandler(this.onClickHideIcon);
+            // 
+            // alwaysHideIcon
+            // 
+            this.alwaysHideIcon.Name = "alwaysHideIcon";
+            this.alwaysHideIcon.Size = new System.Drawing.Size(207, 22);
+            this.alwaysHideIcon.Text = "Hide icon for all backups";
+            this.alwaysHideIcon.Click += new System.EventHandler(this.onClickAlwaysHideIcon);
             // 
             // TrayIcon
             // 
@@ -72,7 +81,8 @@ namespace RetrospectClientNotifier
 
         #endregion
         private System.Windows.Forms.ContextMenuStrip notifyIconMenu;
-        private System.Windows.Forms.ToolStripMenuItem hideToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem hideIcon;
         private System.Windows.Forms.NotifyIcon notifyIcon;
+        private System.Windows.Forms.ToolStripMenuItem alwaysHideIcon;
     }
 }
