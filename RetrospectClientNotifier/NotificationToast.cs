@@ -32,9 +32,9 @@ namespace RetrospectClientNotifier {
 
             builder.Show();
 
-            Thread.Sleep(200); //Give Windows time to read the image before we delete it
-            File.Delete(LOGO_PATH);
+            Thread.Sleep(400); //Give Windows time to read the image before we delete it
             try {
+                File.Delete(LOGO_PATH);
                 Directory.Delete(LOGO_DIRECTORY);
             } catch (IOException) {
                 //directory may not have been empty, ignore
