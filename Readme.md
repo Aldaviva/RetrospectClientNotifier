@@ -1,7 +1,7 @@
 RetrospectClientNotifier
 ===
 
-Notify the user when their computer is being backed up with Retrospect.
+Notify the user when their computer is being backed up with [Retrospect](https://www.retrospect.com).
 
 This used to work out of the box, but Windows 8 removed the ability for background services to show UI, so the dialog boxes never appear.
 
@@ -17,16 +17,21 @@ This used to work out of the box, but Windows 8 removed the ability for backgrou
 ## Requirements
 - Windows 8 or later
 - [.NET Framework 4.8 runtime](https://dotnet.microsoft.com/download/dotnet-framework/net48)
-- Retrospect Client
+- Retrospect Client for Windows
     - Tested with [7.7.114](https://www.retrospect.com/en/support/archived)
 - Retrospect Server
     - Tested with [7.7.620](https://www.retrospect.com/en/support/archived)
 
 <a id="installation"></a>
 ## Installation
-1. Go to this repository's latest [Release](https://github.com/Aldaviva/RetrospectClientNotifier/releases/latest).
-1. Download `retroeventhandler.exe` to your Retrospect Client installation directory.
-    - The default installation directory is `%ProgramFiles(x86)%\Retrospect\Retrospect Client`.
+1. Download `retroeventhandler.exe` from this repository's latest [Release](https://github.com/Aldaviva/RetrospectClientNotifier/releases/latest).
+1. Save it to your Retrospect installation directory.
+    - The default installation directory for Retrospect Client is `%ProgramFiles(x86)%\Retrospect\Retrospect Client\`.
+    - The default installation directory for Retrospect Server is `%ProgramFiles%\Retrospect\Retrospect 7.7\`.
+
+You only need to install this program on the machine which you want to show notifications.
+- If you have a server that backs up a client, install it on the client.
+- If you have a server that backs itself up, install it on the server.
 
 <a id="appearance"></a>
 ## Appearance
@@ -54,6 +59,6 @@ Another toast notification appears, and it describes the quantity and size of th
 
 ![Backup complete](https://i.imgur.com/NLiZbq2.png)
 
-If you missed a notification or want to see it again, you can see the most recent one in the Windows Action Center (Win+A, or click the ![Action Center](https://www.tenforums.com/attachments/tutorials/115951d1485975474-open-action-center-windows-10-a-new_notification.png) Action Center button to the right of the clock).
+If you missed a notification or want to see it again, you can see the most recent one in the Windows Action Center (Win+A, or click the ![Action Center](https://i.imgur.com/Rw5dSBZ.png) Action Center button in the notification area).
 
 ![Action Center](https://i.imgur.com/veBf7DM.png)
