@@ -12,11 +12,11 @@ namespace RetrospectClientNotifier.Events {
         public const  string EVENT_NAME  = "EndSource";
         private const string DATE_FORMAT = "M/d/yyyy H:mm";
 
-        public string scriptName { get; } // "My Backup Script"
-        public string sourceName { get; } // "Backup Clients/Aegir/Games (G:)"
-        public string sourcePath { get; } // "G:\"
-        public string clientName { get; } // "Aegir"
-        public DataSize sizeBackedUp { get; }
+        public string scriptName { get; }     // "My Backup Script"
+        public string sourceName { get; }     // "Backup Clients/Aegir/Games (G:)"
+        public string sourcePath { get; }     // "G:\"
+        public string clientName { get; }     // "Aegir"
+        public DataSize sizeBackedUp { get; } //number in KB
         public long filesBackedUp { get; }
         public TimeSpan duration { get; }    // "0"
         public DateTime sourceStart { get; } // "6/29/2021 1:34"
