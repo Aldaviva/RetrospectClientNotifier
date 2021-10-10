@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
@@ -44,13 +45,19 @@ namespace RetrospectClientNotifier {
 
                 //pcpds.exe doesn't properly escape paths ending with \ in argument string, so turn "G:\" into "G:\\" and then manually parse
                 string   commandLineEscaped = Environment.CommandLine.Replace(@"\"" ", @"\\"" ");
-                string[] args               = CommandLine.commandLineToArgs(commandLineEscaped).Skip(1).ToArray();
+                string[] args;
+                try {
+                    args = CommandLine.commandLineToArgs(commandLineEscaped).Skip(1).ToArray();
+                } catch (Win32Exception) {
+                    MessageBox.Show("Unable to parse arguments string " + commandLineEscaped, "Retrospect Client Notifier", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
-                RetrospectEvent retrospectEvent = RetrospectEventParser.parseEvent(args);
+                RetrospectEvent        retrospectEvent = RetrospectEventParser.parseEvent(args);
+                RetrospectNotification notification    = formatNotification(retrospectEvent);
 
-                RetrospectNotification notification = formatNotification(retrospectEvent);
-                TrayIcon?              trayIcon     = null;
-                bool                   keepRunning  = false;
+                TrayIcon? trayIcon    = null;
+                bool      keepRunning = false;
 
                 if (retrospectEvent is StartSourceEvent) {
                     keepRunning = true;
@@ -76,7 +83,7 @@ namespace RetrospectClientNotifier {
 
                 string message = await reader.ReadToEndAsync();
                 if (message == COMMAND_EXIT) {
-                    trayIcon?.Close(); //needed to quickly hide the tray icon instead of waiting
+                    trayIcon?.Close(); //needed to quickly hide the tray icon instead of waiting for Explorer to eventually realize our process exited
                     pipeServer.Close();
                     Application.Exit();
                 }
@@ -96,23 +103,22 @@ namespace RetrospectClientNotifier {
         }
 
         private static RetrospectNotification formatNotification(RetrospectEvent retrospectEvent) {
-            switch (retrospectEvent) {
-                case StartSourceEvent:
-                    return new RetrospectNotification("Starting backup", "Always back up, never back down.", false);
+            //EndSourceEvent.duration from Retrospect is way too short, it probably only covers copying files and not scanning, building snapshot, or verification
+            DateTime now = DateTime.Now;
+            TimeSpan getCorrectDuration(EndSourceEvent endEvent) => now - endEvent.scriptStart;
 
-                case EndSourceEvent { fatalErrorCode: 0 } notification:
-                    //EndSourceEvent duration from Retrospect is way too short, it probably only covers copying files and not scanning, building snapshot, or verification
-                    TimeSpan duration = DateTime.Now - notification.scriptStart;
-                    return new RetrospectNotification("Backup complete", string.Format(new DataSizeFormatter(), "Copied {0:N0} {2} ({1:A1}) in {3}.",
-                        notification.filesBackedUp, notification.sizeBackedUp, notification.filesBackedUp != 1 ? "files" : "file",
-                        duration.ToString(duration >= TimeSpan.FromHours(1) ? @"h\h\ mm\m" : @"m\m")), true);
+            return retrospectEvent switch {
+                StartSourceEvent => new RetrospectNotification("Starting backup", "Always back up, never back down.", false),
 
-                case EndSourceEvent notification:
-                    return new RetrospectNotification("Backup failed", $"{notification.fatalErrorMessage}\nCode {notification.fatalErrorCode:N0} ({notification.errorCount:N0} errors)", true);
+                EndSourceEvent { fatalErrorCode: 0 } notification => new RetrospectNotification("Backup complete", string.Format(new DataSizeFormatter(),
+                    "Copied {0:N0} {2} ({1:A1}) in {3}.", notification.filesBackedUp, notification.sizeBackedUp, notification.filesBackedUp != 1 ? "files" : "file",
+                    getCorrectDuration(notification).ToString(getCorrectDuration(notification) >= TimeSpan.FromHours(1) ? @"h\h\ mm\m" : @"m\m")), false),
 
-                default:
-                    return new RetrospectNotification("Unknown event", retrospectEvent.GetType().Name, true);
-            }
+                EndSourceEvent notification => new RetrospectNotification("Backup failed", $"{notification.fatalErrorMessage}\n" +
+                    $"Code {notification.fatalErrorCode:N0} ({notification.errorCount:N0} errors)", true),
+
+                _ => new RetrospectNotification("Unknown event", retrospectEvent.GetType().Name, true)
+            };
         }
 
     }

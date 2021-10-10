@@ -10,6 +10,7 @@ namespace RetrospectClientNotifier {
     /// https://stackoverflow.com/a/749653/979493
     internal static class CommandLine {
 
+        /// <exception cref="Win32Exception"></exception>
         public static IEnumerable<string> commandLineToArgs(string commandLine) {
             IntPtr argv = CommandLineToArgvW(commandLine, out int argc);
             if (argv == IntPtr.Zero) {
