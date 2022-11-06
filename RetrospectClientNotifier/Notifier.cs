@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.IO.Pipes;
@@ -43,18 +44,22 @@ namespace RetrospectClientNotifier {
             } else {
                 closeOtherInstances();
 
-                //pcpds.exe doesn't properly escape paths ending with \ in argument string, so turn "G:\" into "G:\\" and then manually parse
-                string   commandLineEscaped = Environment.CommandLine.Replace(@"\"" ", @"\\"" ");
-                string[] args;
+                IReadOnlyList<string> args = null!;
                 try {
-                    args = CommandLine.commandLineToArgs(commandLineEscaped).Skip(1).ToArray();
+                    args = getCommandLineArguments();
                 } catch (Win32Exception) {
-                    MessageBox.Show("Unable to parse arguments string " + commandLineEscaped, "Retrospect Client Notifier", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Unable to parse arguments string " + Environment.CommandLine, "Retrospect Client Notifier", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+                RetrospectEvent retrospectEvent;
+                try {
+                    retrospectEvent = RetrospectEventParser.parseEvent(args);
+                } catch (ArgumentOutOfRangeException e) {
+                    MessageBox.Show(e.Message + "\n\n" + Environment.CommandLine, "RetrospectClientNotifier", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
-                RetrospectEvent        retrospectEvent = RetrospectEventParser.parseEvent(args);
-                RetrospectNotification notification    = formatNotification(retrospectEvent);
+                RetrospectNotification notification = formatNotification(retrospectEvent);
 
                 TrayIcon? trayIcon    = null;
                 bool      keepRunning = false;
@@ -74,6 +79,14 @@ namespace RetrospectClientNotifier {
                     Application.Run();
                 }
             }
+        }
+
+        internal static IReadOnlyList<string> getCommandLineArguments(string? commandLine = null) {
+            commandLine ??= Environment.CommandLine;
+
+            //pcpds.exe doesn't properly escape paths ending with \ in argument string, so turn "G:\" into "G:\\" and then manually parse
+            string commandLineEscaped = commandLine.Replace(@"\"" ", @"\\"" ");
+            return CommandLine.commandLineToArgs(commandLineEscaped).Skip(1).ToArray();
         }
 
         private static void listenForExitMessages(Form? trayIcon) {

@@ -17,7 +17,7 @@ namespace RetrospectClientNotifier.Events {
                 StartSourceEvent.EVENT_NAME => new StartSourceEvent(argsTail),
                 EndSourceEvent.EVENT_NAME   => new EndSourceEvent(argsTail),
                 _ => throw new ArgumentOutOfRangeException("eventName", eventName,
-                    "Unknown Retrospect event name, known names are " + string.Join(", ", StartSourceEvent.EVENT_NAME, EndSourceEvent.EVENT_NAME))
+                    $"Unknown Retrospect event name {eventName}, known names are " + string.Join(", ", StartSourceEvent.EVENT_NAME, EndSourceEvent.EVENT_NAME))
             };
 
             return retrospectEvent;

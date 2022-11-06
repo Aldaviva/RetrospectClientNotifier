@@ -39,9 +39,11 @@ You only need to install this program on the machine which you want to show noti
 <a id="when-a-backup-starts"></a>
 ### When a backup starts
 
-A native Windows toast notification is shown for a few seconds.
+A native Windows toast notification is shown for a few seconds with a [message](https://twitter.com/computerfact/status/950555877815308288) telling you a backup is starting.
 
 ![Starting backup](https://i.imgur.com/g8mmFz4.png)
+
+If you don't want this notification to appear, you can disable it from Settings › System › Notifications & actions › Get notifications from these senders.
 
 <a id="while-a-backup-is-running"></a>
 ### While a backup is running
@@ -59,6 +61,6 @@ Another toast notification appears, and it describes the quantity and size of th
 
 ![Backup complete](https://i.imgur.com/NLiZbq2.png)
 
-If you missed a notification or want to see it again, you can see the most recent one in the Windows Action Center (Win+A, or click the ![Action Center](https://i.imgur.com/Rw5dSBZ.png) Action Center button in the notification area).
+If you missed a notification or want to see it again, you can see the most recent one in the Windows 10 Action Center (`Win`+`A`, or click ![Action Center](https://i.imgur.com/Rw5dSBZ.png)) or Windows 11 Notifications (`Win`+`N`, or click the clock).
 
 ![Action Center](https://i.imgur.com/veBf7DM.png)
